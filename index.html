@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrossel de Vídeos</title>
+    <style>
+        body {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .carousel-container {
+            width: 70%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            position: relative;
+        }
+        .carousel {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        .carousel-item {
+            flex: 0 0 33.33%;
+            text-align: center;
+            opacity: 0.5;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+           
+        }
+        .carousel-item video {
+            width: 240px;
+            height: 426px;
+            border-radius: 10px;
+            border: 10px solid #cccccc; /* Adiciona a borda cinza */
+        }
+        .carousel-item.active {
+            transform: scale(1);
+            z-index: 1;
+            opacity: 1;
+        }
+        .carousel-item.inactive {
+            transform: scale(0.9);
+        }
+        .prev, .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2em;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            z-index: 2;
+        }
+        .prev {
+            left: 100px;
+        }
+        .next {
+            right: 100px;
+        }
+        .indicators {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #cccccc;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+        .indicator.active {
+            background-color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <button class="prev">&lt;</button>
+    <div class="carousel-container">
+       
+        <div class="carousel">
+            <div class="carousel-item inactive"><video src="video1.mp4" controls></video></div>
+            <div class="carousel-item active"><video src="video2.mp4" controls></video></div>
+            <div class="carousel-item inactive"><video src="video3.mp4" controls></video></div>
+            <div class="carousel-item inactive"><video src="video4.mp4" controls></video></div>
+            <div class="carousel-item inactive"><video src="video5.mp4" controls></video></div>
+            <div class="carousel-item inactive"><video src="video6.mp4" controls></video></div>
+        </div>
+        
+        <br><br>
+        <div class="indicators">
+            <div class="indicator active"></div>
+            <div class="indicator"></div>
+            <div class="indicator"></div>
+        </div>
+    </div>
+    <button class="next">&gt;</button>
+
+    <script>
+        const carousel = document.querySelector('.carousel');
+        const items = document.querySelectorAll('.carousel-item');
+        const indicators = document.querySelectorAll('.indicator');
+        let currentIndex = 1;
+        let interval;
+
+        function startCarousel() {
+            interval = setInterval(() => {
+                nextItem();
+            }, 3000);
+        }
+
+        function stopCarousel() {
+            clearInterval(interval);
+        }
+
+        function showItems() {
+            items.forEach((item, index) => {
+                item.classList.remove('active', 'inactive');
+                if (index === currentIndex) {
+                    item.classList.add('active');
+                } else if (index === (currentIndex + 1) % items.length || index === (currentIndex - 1 + items.length) % items.length) {
+                    item.classList.add('inactive');
+                }
+            });
+            carousel.style.transform = `translateX(-${33.33 * (currentIndex - 1)}%)`;
+            updateIndicators();
+        }
+
+        function nextItem() {
+            currentIndex = (currentIndex + 1) % items.length;
+            showItems();
+        }
+
+        function prevItem() {
+            currentIndex = (currentIndex - 1 + items.length) % items.length;
+            showItems();
+        }
+
+        function updateIndicators() {
+            indicators.forEach((indicator, index) => {
+                indicator.classList.remove('active');
+                if (index === Math.floor(currentIndex / 2)) {
+                    indicator.classList.add('active');
+                }
+            });
+        }
+
+        document.querySelector('.next').addEventListener('click', () => {
+            stopCarousel();
+            nextItem();
+            startCarousel();
+        });
+
+        document.querySelector('.prev').addEventListener('click', () => {
+            stopCarousel();
+            prevItem();
+            startCarousel();
+        });
+
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => {
+                stopCarousel();
+                currentIndex = index * 2;
+                showItems();
+                startCarousel();
+            });
+        });
+
+        items.forEach(item => {
+            const video = item.querySelector('video');
+            video.addEventListener('play', stopCarousel);
+            video.addEventListener('pause', startCarousel);
+        });
+
+        startCarousel();
+    </script>
+</body>
+</html>
